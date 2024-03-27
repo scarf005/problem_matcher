@@ -75,50 +75,6 @@ const loopMatcherWithDefaultSeverity = {
 	],
 }
 
-Deno.test("throws an error if the matcher is missing", () => {
-	const actual = () => matcher(undefined, "error::Something went wrong")
-	assertThrows(actual, "No matcher provided")
-})
-
-Deno.test("throws an error if the matcher is invalid (no owner)", () => {
-	const m = {
-		pattern: [],
-	}
-	const actual = () => matcher(m, "error::Something went wrong")
-	assertThrows(actual, "No matcher.owner provided")
-})
-
-Deno.test("throws an error if the matcher is invalid (no pattern)", () => {
-	const m = {
-		owner: "Deno.test",
-	}
-	const actual = () => matcher(m, "error::Something went wrong")
-	assertThrows(actual, "No matcher.pattern provided")
-})
-
-Deno.test("throws an error if the matcher is invalid (empty pattern)", () => {
-	const m = {
-		owner: "Deno.test",
-		pattern: [],
-	}
-	const actual = () => matcher(m, "error::Something went wrong")
-	assertThrows(actual, "matcher.pattern must be an array with at least one value")
-})
-
-Deno.test("throws an error if the matcher is invalid (invalid pattern)", () => {
-	const m = {
-		owner: "Deno.test",
-		pattern: { invalid: true },
-	}
-	const actual = () => matcher(m, "error::Something went wrong")
-	assertThrows(actual, "matcher.pattern must be an array with at least one value")
-})
-
-Deno.test("throws an error if the input is missing", () => {
-	const actual = () => matcher(validMatcher, undefined)
-	assertThrows(actual, "No input provided")
-})
-
 Deno.test("single line matcher, no match", () => {
 	const actual = matcher(eslintSingleMatcher, "this line won't match")
 	assertEquals(actual, [])

@@ -6,13 +6,12 @@ export type Pattern = {
 
 export type Matcher = {
 	owner: string
-	severity: string
+	severity?: string
 	pattern: Pattern[]
 }
 
 export default function (matcher: Matcher, input: string) {
 	validateMatcher(matcher)
-	validateInput(input)
 
 	if (matcher.pattern.length == 1) {
 		return singleMatch(matcher, input)
@@ -98,28 +97,11 @@ function singleMatch(matcher: Matcher, input: string) {
 }
 
 function validateMatcher(matcher: Matcher) {
-	if (!matcher) {
-		throw new Error("No matcher provided")
-	}
-
-	if (!matcher.owner) {
-		throw new Error("No matcher.owner provided")
-	}
-
-	if (!matcher.pattern) {
-		throw new Error("No matcher.pattern provided")
-	}
-
 	if (!Array.isArray(matcher.pattern) || matcher.pattern.length < 1) {
 		throw new Error("matcher.pattern must be an array with at least one value")
 	}
 }
 
-function validateInput(input: string) {
-	if (!input) {
-		throw new Error("No input provided")
-	}
-}
 
 function runRegExp(re: RegExp, line: string, pattern: Pattern, matcher: Matcher) {
 	const s = line.match(re)
