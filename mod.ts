@@ -1,12 +1,39 @@
 export type Pattern = {
+	/** The regex pattern that provides the groups to match against. */
 	regexp: string
+
+	/** A group number containing the file name. */
+	file?: number
+
+	/** A group number containing a filepath used to root the file (e.g. a project file). */
+	fromPath?: number
+
+	/** A group number containing the line number. */
+	line?: number
+
+	/** A group number containing the column information. */
+	column?: number
+
+	/** A group number containing either 'warning' or 'error' case-insensitive. @default "error" */
+	severity?: number
+
+	/** A group number containing the error code. */
+	code?: number
+
+	/** A group number containing the error message. */
+	message?: number
+
+	/** Whether to loop until a match is not found, only valid on the last pattern of a multipattern matcher. */
 	loop?: boolean
-	[key: string]: any
 }
 
 export type Matcher = {
+	/** An ID field that can be used to remove or replace the problem matcher. */
 	owner: string
+
+	/** Indicates the default severity. Case insensitive. @default "error" */
 	severity?: string
+
 	pattern: Pattern[]
 }
 
@@ -102,7 +129,6 @@ function validateMatcher(matcher: Matcher) {
 	}
 }
 
-
 function runRegExp(re: RegExp, line: string, pattern: Pattern, matcher: Matcher) {
 	const s = line.match(re)
 
@@ -110,25 +136,27 @@ function runRegExp(re: RegExp, line: string, pattern: Pattern, matcher: Matcher)
 		return null
 	}
 
-	const matches: Record<string, string> = {}
-	for (const k in pattern) {
+	const matches: Record<string, string | undefined> = {}
+
+	for (const k of Object.keys(pattern) as (keyof Pattern)[]) {
 		if (k == "regexp" || k == "loop") {
 			continue
 		}
 
-		if (pattern[k] === 0) {
+		const val = pattern[k]
+		if (val === 0) {
 			throw new Error(
 				`Group 0 is not a valid capture group (it contains the entire matched string)`,
 			)
 		}
 
-		if (!s[pattern[k]]) {
+		if (!val || !s[val]) {
 			throw new Error(
-				`Invalid capture group provided. Group ${pattern[k]} (${k}) does not exist in regexp`,
+				`Invalid capture group provided. Group ${val} (${k}) does not exist in regexp`,
 			)
 		}
 
-		matches[k] = s[pattern[k]].trim()
+		matches[k] = s[val].trim()
 	}
 
 	if (!matches.severity) {
